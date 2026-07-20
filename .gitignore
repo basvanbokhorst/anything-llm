@@ -9,4 +9,12 @@ v-env
 aws_cf_deploy_anything_llm.json
 yarn.lock
 *.bak
+*.bak-*
 .idea
+
+# SSH keys — never commit
+hetzer-anythingllm*
+myfile*
+id_ed25519*
+*.pem
+.gstack/
