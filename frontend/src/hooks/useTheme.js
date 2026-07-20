@@ -5,10 +5,11 @@ const availableThemes = {
   system: "System",
   light: "Light",
   dark: "Dark",
+  greenberry: "Greenberry",
 };
 
 /**
- * @typedef {'system' | 'light' | 'dark'} ThemeOption
+ * @typedef {'system' | 'light' | 'dark' | 'greenberry'} ThemeOption
  */
 
 /**
@@ -48,12 +49,19 @@ export function useTheme() {
 
   const resolvedTheme = theme === "system" ? systemTheme : theme;
 
+  // "greenberry" is a light-based brand theme: it reuses every light-theme
+  // rule and only re-tints the CSS variables via the data-brand attribute.
+  const baseTheme = resolvedTheme === "greenberry" ? "light" : resolvedTheme;
+  const brand = resolvedTheme === "greenberry" ? "greenberry" : null;
+
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", resolvedTheme);
-    document.body.classList.toggle("light", resolvedTheme === "light");
+    document.documentElement.setAttribute("data-theme", baseTheme);
+    if (brand) document.documentElement.setAttribute("data-brand", brand);
+    else document.documentElement.removeAttribute("data-brand");
+    document.body.classList.toggle("light", baseTheme === "light");
     localStorage.setItem("theme", theme);
     window.dispatchEvent(new Event(REFETCH_LOGO_EVENT));
-  }, [resolvedTheme, theme]);
+  }, [baseTheme, brand, theme]);
 
   // In development, attach keybind combinations to toggle theme
   useEffect(() => {
@@ -81,6 +89,6 @@ export function useTheme() {
     theme,
     setTheme,
     availableThemes,
-    isLight: resolvedTheme === "light",
+    isLight: baseTheme === "light",
   };
 }
