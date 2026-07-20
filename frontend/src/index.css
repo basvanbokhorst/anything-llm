@@ -207,6 +207,153 @@
   --theme-button-delete-hover-bg: #fee4e2;
 }
 
+/* ============================================================
+   Greenberry brand theme.
+   Rendered on top of the light theme (data-theme="light") — this
+   layer only re-tints the theme CSS variables and swaps the font,
+   so every existing light-theme rule keeps working unchanged.
+   Palette source: Greenberry Design System tokens.css.
+   ============================================================ */
+[data-brand="greenberry"] {
+  --theme-loader: #5801ff;
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #ffffff;
+  --theme-bg-sidebar: #f3f3f9;
+  --theme-bg-container: #f3f3f9;
+  --theme-bg-chat: #ffffff;
+  --theme-bg-chat-input: #f3f3f9;
+  --theme-popup-menu-bg: #ffffff;
+
+  --theme-text-primary: #32323c;
+  --theme-text-secondary: #5a5a66;
+  --theme-placeholder: #80808e;
+
+  --theme-sidebar-item-default: transparent;
+  --theme-sidebar-item-selected: #ffffff;
+  --theme-sidebar-item-hover: #e9e3fb;
+  --theme-sidebar-item-text-inactive: #5a5a66;
+  --theme-sidebar-item-text-active: #5801ff;
+  --theme-sidebar-item-workspace-active: #32323c;
+  --theme-sidebar-item-workspace-inactive: #80808e;
+  --theme-sidebar-subitem-default: transparent;
+  --theme-sidebar-subitem-selected: #ede7fb;
+  --theme-sidebar-thread-selected: #ffffff;
+  --theme-sidebar-subitem-hover: #ede7fb;
+  --theme-sidebar-border: #e4e5ee;
+  --theme-sidebar-footer-icon: #ffffff;
+  --theme-sidebar-footer-icon-fill: #5a5a66;
+  --theme-sidebar-footer-icon-hover: #e9e3fb;
+
+  --theme-chat-input-border: #caccdd;
+  --theme-action-menu-bg: #ffffff;
+  --theme-action-menu-item-hover: rgba(88, 1, 255, 0.08);
+  --theme-settings-input-bg: #f3f3f9;
+  --theme-settings-input-placeholder: rgba(50, 50, 60, 0.45);
+  --theme-settings-input-active: rgba(88, 1, 255, 0.25);
+  --theme-settings-input-text: #32323c;
+  --theme-modal-border: #e4e5ee;
+
+  --theme-button-primary: #5801ff;
+  --theme-button-primary-hover: #e4e5ee;
+  --theme-button-cta: #5801ff;
+
+  --theme-file-row-even: #f3f3f9;
+  --theme-file-row-odd: #ffffff;
+  --theme-file-row-selected-even: rgba(88, 1, 255, 0.16);
+  --theme-file-row-selected-odd: rgba(88, 1, 255, 0.1);
+  --theme-file-picker-hover: rgba(88, 1, 255, 0.1);
+
+  --theme-home-text: #32323c;
+  --theme-home-text-secondary: #5a5a66;
+  --theme-home-bg-card: #f3f3f9;
+  --theme-home-bg-button: #ffffff;
+  --theme-home-border: #e4e5ee;
+  --theme-home-button-primary: #5801ff;
+  --theme-home-button-primary-hover: rgba(88, 1, 255, 0.9);
+  --theme-home-button-secondary: #ede7fb;
+  --theme-home-button-secondary-hover: #d3c3f5;
+  --theme-home-button-secondary-text: #32323c;
+  --theme-home-button-secondary-hover-text: #32323c;
+  --theme-home-update-card-bg: #f3f3f9;
+  --theme-home-update-card-hover: #ede7fb;
+  --theme-home-update-source: #5801ff;
+  --theme-home-button-secondary-border: #d3c3f5;
+  --theme-home-button-secondary-border-hover: #5801ff;
+
+  --theme-checklist-item-bg: #ede7fb;
+  --theme-checklist-item-bg-hover: #d3c3f5;
+  --theme-checklist-item-text: #3a1b7a;
+  --theme-checklist-item-completed-bg: #d8f0e6;
+  --theme-checklist-item-completed-text: #2e8f6b;
+  --theme-checklist-checkbox-fill: #2e8f6b;
+  --theme-checklist-checkbox-text: #ffffff;
+  --theme-checklist-item-hover: #5801ff;
+  --theme-checklist-checkbox-border: #caccdd;
+  --theme-checklist-button-border: #5801ff;
+  --theme-checklist-button-text: #5801ff;
+  --theme-checklist-button-hover-bg: rgba(88, 1, 255, 0.1);
+  --theme-checklist-button-hover-border: rgba(88, 1, 255, 0.8);
+
+  --theme-attachment-bg: #f3f3f9;
+  --theme-attachment-error-bg: rgba(255, 85, 78, 0.25);
+  --theme-attachment-success-bg: #f3f3f9;
+  --theme-attachment-text: #32323c;
+  --theme-attachment-text-secondary: rgba(50, 50, 60, 0.8);
+  --theme-attachment-icon: #ffffff;
+  --theme-attachment-icon-spinner: #5801ff;
+  --theme-attachment-icon-spinner-bg: #ffffff;
+
+  --theme-button-text: #80808e;
+  --theme-button-code-hover-text: #5801ff;
+  --theme-button-code-hover-bg: #ede7fb;
+  --theme-button-disable-hover-text: #9a6a16;
+  --theme-button-disable-hover-bg: #fbf1dc;
+  --theme-button-delete-hover-text: #c4362f;
+  --theme-button-delete-hover-bg: #fde4e3;
+}
+
+@font-face {
+  font-family: "Geist";
+  src: url("../public/fonts/Geist-Variable.ttf") format("truetype-variations");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* Geist only applies inside the Greenberry brand theme. */
+[data-brand="greenberry"] body,
+[data-brand="greenberry"] {
+  font-family:
+    "Geist",
+    "plus-jakarta-sans",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+}
+
+/* Greenberry signature: softer, rounder surfaces and capsule CTAs.
+   Border-radius only — visual, no layout impact. Scoped to the brand. */
+[data-brand="greenberry"] .rounded-md {
+  border-radius: 10px;
+}
+[data-brand="greenberry"] .rounded-lg {
+  border-radius: 14px;
+}
+[data-brand="greenberry"] .rounded-xl {
+  border-radius: 18px;
+}
+[data-brand="greenberry"] .rounded-2xl {
+  border-radius: 22px;
+}
+
+/* Primary action buttons become capsules (like the Greenberry deck).
+   Placed after the generic radii so it wins on buttons carrying both. */
+[data-brand="greenberry"] .bg-primary-button,
+[data-brand="greenberry"] .bg-cta-button {
+  border-radius: 9999px;
+}
+
 [data-theme="light"] .text-white {
   color: var(--theme-text-primary);
 }
