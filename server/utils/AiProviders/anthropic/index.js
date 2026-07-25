@@ -114,6 +114,25 @@ class AnthropicLLM {
   }
 
   /**
+   * Collects the assistant's visible text from a completed message.
+   *
+   * A response is a list of content blocks, and `text` is not the only kind:
+   * models with thinking enabled put a `thinking` block first, so reading
+   * `content[0].text` yields undefined and the caller reports "No text
+   * completion could be completed with this input" even though the model
+   * answered normally. Concatenating every text block also keeps responses
+   * intact when the model emits more than one.
+   * @param {Object} message - a completed Anthropic message
+   * @returns {string} the concatenated text blocks
+   */
+  #textFromMessage(message) {
+    return (message?.content ?? [])
+      .filter((block) => block?.type === "text" && typeof block.text === "string")
+      .map((block) => block.text)
+      .join("");
+  }
+
+  /**
    * Fetches the maximum number of tokens the model should generate in its response.
    * This varies per model but will fallback to 4096 if the model is not found.
    * @param {string} modelName - The name of the model to fetch the max tokens for
@@ -252,7 +271,7 @@ class AnthropicLLM {
       const completionTokens = result.output.usage.output_tokens;
 
       return {
-        textResponse: result.output.content[0].text,
+        textResponse: this.#textFromMessage(result.output),
         metrics: {
           prompt_tokens: promptTokens,
           completion_tokens: completionTokens,
