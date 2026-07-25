@@ -21,8 +21,21 @@ class AnthropicLLM {
     "claude-opus-4-7",
     "claude-opus-4-8",
     "claude-sonnet-5",
+    "claude-opus-5",
+    "claude-fable-5",
+    "claude-mythos-5",
     // Add other models here if identified
   ];
+
+  /**
+   * The whole Claude 5 family rejects sampling parameters, so match on the family
+   * instead of waiting for each new release to be listed by hand. Sending
+   * `temperature` to such a model fails the request outright with a 400, while
+   * omitting it for a model that would have accepted it merely loses a tuning
+   * knob — so erring toward omitting is the safe direction.
+   * @type {RegExp}
+   */
+  noTemperaturePattern = /^claude-[a-z]+-5(?:[-.]|$)/;
 
   constructor(embedder = null, modelPreference = null) {
     if (!process.env.ANTHROPIC_API_KEY)
@@ -96,6 +109,7 @@ class AnthropicLLM {
     if (typeof temperature !== "number") return undefined;
     if (this.noTemperatureModels.some((model) => this.model.includes(model)))
       return undefined;
+    if (this.noTemperaturePattern.test(this.model)) return undefined;
     return parseFloat(temperature);
   }
 
