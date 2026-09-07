@@ -18,9 +18,17 @@ class NativeEmbeddingReranker {
   #fallbackHost = "https://cdn.anythingllm.com/support/models/";
 
   constructor() {
-    // An alternative model to the mixedbread-ai/mxbai-rerank-xsmall-v1 model (speed on CPU is much slower for this model @ 18docs = 6s)
-    // Model Card: https://huggingface.co/Xenova/ms-marco-MiniLM-L-6-v2 (speed on CPU is much faster @ 18docs = 1.6s)
-    this.model = "Xenova/ms-marco-MiniLM-L-6-v2";
+    // Greenberry: multilingual reranker instead of upstream's English-only
+    // Xenova/ms-marco-MiniLM-L-6-v2. Our corpus and queries are Dutch; on the retrieval
+    // eval of 2026-09-07 the English model ranked the expected document for "Wat is er
+    // bekend over het Heinfonds?" at position 24 of 50 candidates, this one at 5, with
+    // the other seven cases unchanged at 1. Trained on mMARCO (MS MARCO translated into
+    // 14 languages incl. Dutch), same MiniLM family, 12 layers. Cost on this VM's CPU:
+    // ~2.8 s per 50 candidates vs ~1.0 s. The repo ships onnx/model.onnx (fp32) but no
+    // onnx/model_quantized.onnx, hence quantized:false below.
+    // Model Card: https://huggingface.co/cross-encoder/mmarco-mMiniLMv2-L12-H384-v1
+    this.model = "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1";
+    this.modelLoadOptions = { quantized: false };
     this.cacheDir = path.resolve(
       process.env.STORAGE_DIR
         ? path.resolve(process.env.STORAGE_DIR, `models`)
@@ -133,6 +141,7 @@ class NativeEmbeddingReranker {
         await NativeEmbeddingReranker.#transformers.AutoModelForSequenceClassification.from_pretrained(
           this.model,
           {
+            ...this.modelLoadOptions,
             progress_callback: (p) => {
               if (!this.modelDownloaded && p.status === "progress") {
                 this.log(
