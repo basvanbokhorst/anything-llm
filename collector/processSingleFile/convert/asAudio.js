@@ -1,6 +1,6 @@
 const { v4 } = require("uuid");
 const {
-  createdDate,
+  publishedDate,
   trashFile,
   writeToServerDocuments,
 } = require("../../utils/files");
@@ -62,7 +62,7 @@ async function asAudio({
     description: metadata.description || "No description found.",
     docSource: metadata.docSource || "audio file uploaded by the user.",
     chunkSource: metadata.chunkSource || "",
-    published: createdDate(fullFilePath),
+    published: publishedDate(metadata, fullFilePath),
     wordCount: content.split(" ").length,
     pageContent: content,
     token_count_estimate: tokenizeString(content),

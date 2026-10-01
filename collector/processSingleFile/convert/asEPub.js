@@ -2,7 +2,7 @@ const { v4 } = require("uuid");
 const { EPubLoader } = require("langchain/document_loaders/fs/epub");
 const { tokenizeString } = require("../../utils/tokenizer");
 const {
-  createdDate,
+  publishedDate,
   trashFile,
   writeToServerDocuments,
 } = require("../../utils/files");
@@ -42,7 +42,7 @@ async function asEPub({
     description: metadata.description || "Unknown",
     docSource: metadata.docSource || "epub file uploaded by the user.",
     chunkSource: metadata.chunkSource || "",
-    published: createdDate(fullFilePath),
+    published: publishedDate(metadata, fullFilePath),
     wordCount: content.split(" ").length,
     pageContent: content,
     token_count_estimate: tokenizeString(content),

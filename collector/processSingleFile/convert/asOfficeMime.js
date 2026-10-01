@@ -1,7 +1,7 @@
 const { v4 } = require("uuid");
 const officeParser = require("officeparser");
 const {
-  createdDate,
+  publishedDate,
   trashFile,
   writeToServerDocuments,
 } = require("../../utils/files");
@@ -40,7 +40,7 @@ async function asOfficeMime({
     description: metadata.description || "No description found.",
     docSource: metadata.docSource || "Office file uploaded by the user.",
     chunkSource: metadata.chunkSource || "",
-    published: createdDate(fullFilePath),
+    published: publishedDate(metadata, fullFilePath),
     wordCount: content.split(" ").length,
     pageContent: content,
     token_count_estimate: tokenizeString(content),

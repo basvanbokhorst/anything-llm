@@ -3,7 +3,7 @@ const xlsx = require("node-xlsx").default;
 const path = require("path");
 const fs = require("fs");
 const {
-  createdDate,
+  publishedDate,
   trashFile,
   writeToServerDocuments,
   documentsFolder,
@@ -85,7 +85,7 @@ async function asXlsx({
           }`,
         docSource: metadata.docSource || "an xlsx file uploaded by the user.",
         chunkSource: metadata.chunkSource || "",
-        published: createdDate(fullFilePath),
+        published: publishedDate(metadata, fullFilePath),
         wordCount: totalWordCount,
         pageContent: combinedContent,
         token_count_estimate: tokenizeString(combinedContent),
@@ -125,7 +125,7 @@ async function asXlsx({
             metadata.description || `Spreadsheet data from sheet: ${name}`,
           docSource: metadata.docSource || "an xlsx file uploaded by the user.",
           chunkSource: metadata.chunkSource || "",
-          published: createdDate(fullFilePath),
+          published: publishedDate(metadata, fullFilePath),
           wordCount: wordCount,
           pageContent: content,
           token_count_estimate: tokenizeString(content),

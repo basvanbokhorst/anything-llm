@@ -107,6 +107,24 @@ function createdDate(filepath) {
   }
 }
 
+// Greenberry: file converters used to stamp `published` with the creation date of the
+// temporary upload, so a synced Drive PDF looked as new as the night it was synced. Honour
+// the `published` metadata key (epoch ms, as the upload API documents it) when it is given.
+function publishedDate(metadata, filepath) {
+  const published = metadata?.published;
+  if (
+    published === null ||
+    published === undefined ||
+    typeof published === "boolean" ||
+    `${published}`.trim() === ""
+  )
+    return createdDate(filepath);
+
+  const date = new Date(Number(published));
+  if (isNaN(date.getTime())) return createdDate(filepath);
+  return date.toLocaleString();
+}
+
 /**
  * Writes a document to the server documents folder.
  * @param {Object} params - The parameters for the function.
@@ -244,6 +262,7 @@ module.exports = {
   trashFile,
   isTextType,
   createdDate,
+  publishedDate,
   writeToServerDocuments,
   wipeCollectorStorage,
   normalizePath,

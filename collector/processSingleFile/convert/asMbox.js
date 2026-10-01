@@ -2,7 +2,7 @@ const { v4 } = require("uuid");
 const fs = require("fs");
 const { mboxParser } = require("mbox-parser");
 const {
-  createdDate,
+  publishedDate,
   trashFile,
   writeToServerDocuments,
 } = require("../../utils/files");
@@ -58,7 +58,7 @@ async function asMbox({
       docSource:
         metadata.docSource || "Mbox message file uploaded by the user.",
       chunkSource: metadata.chunkSource || "",
-      published: createdDate(fullFilePath),
+      published: publishedDate(metadata, fullFilePath),
       wordCount: content.split(" ").length,
       pageContent: content,
       token_count_estimate: tokenizeString(content),
