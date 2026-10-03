@@ -18,6 +18,8 @@ const {
 } = require("../../../utils/helpers/chat/responses");
 const { ApiChatHandler } = require("../../../utils/chats/apiChatHandler");
 const { getModelTag } = require("../../utils");
+// Greenberry: log every vector-search so real questions can be analysed.
+const { logVectorSearch } = require("../../../utils/helpers/searchLog");
 const {
   workspaceDeletionProtection,
 } = require("../../../utils/middleware/workspaceDeletionProtection");
@@ -995,6 +997,7 @@ function apiWorkspaceEndpoints(app) {
           prompt: String(query),
         });
 
+        const searchStartedAt = Date.now();
         const results = await VectorDb.performSimilaritySearch({
           namespace: workspace.slug,
           input: String(query),
@@ -1002,6 +1005,16 @@ function apiWorkspaceEndpoints(app) {
           similarityThreshold: parseSimilarityThreshold(),
           topN: parseTopN(),
           rerank: workspace?.vectorSearchMode === "rerank",
+        });
+
+        // Greenberry: record the question and what came back (never throws).
+        logVectorSearch({
+          workspace: workspace.slug,
+          query,
+          topN: parseTopN(),
+          scoreThreshold: parseSimilarityThreshold(),
+          ms: Date.now() - searchStartedAt,
+          sources: results.sources,
         });
 
         response.status(200).json({
