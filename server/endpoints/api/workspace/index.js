@@ -20,6 +20,10 @@ const { ApiChatHandler } = require("../../../utils/chats/apiChatHandler");
 const { getModelTag } = require("../../utils");
 // Greenberry: log every vector-search so real questions can be analysed.
 const { logVectorSearch } = require("../../../utils/helpers/searchLog");
+// Greenberry: expose the document location so a client can read the full document.
+const {
+  locationsForVectorIds,
+} = require("../../../utils/helpers/documentContent");
 const {
   workspaceDeletionProtection,
 } = require("../../../utils/middleware/workspaceDeletionProtection");
@@ -1017,11 +1021,18 @@ function apiWorkspaceEndpoints(app) {
           sources: results.sources,
         });
 
+        // Greenberry: chunk id -> document location (docpath), one lookup for all hits.
+        const locations = await locationsForVectorIds(
+          results.sources.map((source) => source.id),
+          workspace.id
+        );
+
         response.status(200).json({
           results: results.sources.map((source) => ({
             id: source.id,
             text: source.text,
             metadata: {
+              location: locations.get(String(source.id)),
               url: source.url,
               title: source.title,
               author: source.docAuthor,

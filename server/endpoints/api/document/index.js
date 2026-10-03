@@ -2,6 +2,7 @@ const { Telemetry } = require("../../../models/telemetry");
 const { validApiKey } = require("../../../utils/middleware/validApiKey");
 const { handleAPIFileUpload } = require("../../../utils/files/multer");
 const {
+  fileData,
   findDocumentInDocuments,
   getDocumentsByFolder,
   normalizePath,
@@ -15,6 +16,8 @@ const { CollectorApi } = require("../../../utils/collectorApi");
 const fs = require("fs");
 const path = require("path");
 const { Document } = require("../../../models/documents");
+// Greenberry: read a document's full text (or a window around a search hit).
+const { windowText } = require("../../../utils/helpers/documentContent");
 const { purgeFolder } = require("../../../utils/files/purgeDocument");
 const createFilesLib = require("../../../utils/agents/aibitat/plugins/create-files/lib");
 const documentsPath =
@@ -888,6 +891,40 @@ function apiDocumentEndpoints(app) {
       }
     }
   );
+
+  // Greenberry: "search, then read". Returns (a window of) the full text of one document so a client is not
+  // limited to the 1000-character chunks of a search hit. Use the `metadata.location` of a vector-search result.
+  //   offset/limit  page through the document (limit defaults to 20000, max 100000)
+  //   around/window centre a window (default 4000 chars) on a passage, e.g. the text of a search hit
+  app.get("/v1/document-text", [validApiKey], async (request, response) => {
+    try {
+      const { location, offset, limit, around, window } = request.query;
+      if (!location)
+        return response.status(400).json({
+          message:
+            "location is required: use metadata.location from a vector-search result.",
+        });
+      const data = await fileData(String(location));
+      if (!data) return response.sendStatus(404);
+      const result = windowText({
+        text: data.pageContent,
+        offset,
+        limit,
+        around: around ? String(around) : undefined,
+        window,
+      });
+      response.status(200).json({
+        location: String(location),
+        title: data.title,
+        docSource: data.docSource,
+        published: data.published,
+        ...result,
+      });
+    } catch (e) {
+      console.error(e.message, e);
+      response.sendStatus(500).end();
+    }
+  });
 
   // Be careful and place as last route to prevent override of the other /document/ GET
   // endpoints!
