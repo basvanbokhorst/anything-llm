@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require("uuid");
 const { sourceIdentifier } = require("../../chats");
 const { NativeEmbeddingReranker } = require("../../EmbeddingRerankers/native");
 const { VectorDatabase } = require("../base");
+const { isHybridEnabled, hybridCandidates } = require("./hybrid");
 const path = require("path");
 
 /**
@@ -131,11 +132,21 @@ class LanceDb extends VectorDatabase {
       10,
       Math.min(50, Math.ceil(totalEmbeddings * 0.1))
     );
-    const vectorSearchResults = await collection
-      .vectorSearch(queryVector)
-      .distanceType("cosine")
-      .limit(searchLimit)
-      .toArray();
+    // Greenberry: optionally fuse vector hits with full-text (BM25) hits before reranking.
+    const vectorSearchResults = isHybridEnabled()
+      ? (
+          await hybridCandidates({
+            collection,
+            query,
+            queryVector,
+            limit: searchLimit,
+          })
+        ).rows
+      : await collection
+          .vectorSearch(queryVector)
+          .distanceType("cosine")
+          .limit(searchLimit)
+          .toArray();
 
     await reranker
       .rerank(query, vectorSearchResults, { topK: topN })
