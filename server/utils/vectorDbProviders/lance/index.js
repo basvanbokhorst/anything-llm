@@ -8,6 +8,7 @@ const { sourceIdentifier } = require("../../chats");
 const { NativeEmbeddingReranker } = require("../../EmbeddingRerankers/native");
 const { VectorDatabase } = require("../base");
 const { isHybridEnabled, hybridCandidates } = require("./hybrid");
+const { onePerDocument } = require("./distinctDocuments");
 const path = require("path");
 
 /**
@@ -105,6 +106,7 @@ class LanceDb extends VectorDatabase {
     topN = 4,
     similarityThreshold = 0.25,
     filterIdentifiers = [],
+    distinctDocuments = false,
   }) {
     const reranker = new NativeEmbeddingReranker();
     const collection = await client.openTable(namespace);
@@ -148,10 +150,16 @@ class LanceDb extends VectorDatabase {
           .limit(searchLimit)
           .toArray();
 
+    // Greenberry: rerank every candidate when collapsing to one chunk per document, then keep topN documents.
     await reranker
-      .rerank(query, vectorSearchResults, { topK: topN })
+      .rerank(query, vectorSearchResults, {
+        topK: distinctDocuments ? vectorSearchResults.length : topN,
+      })
       .then((rerankResults) => {
-        rerankResults.forEach((item) => {
+        const ranked = distinctDocuments
+          ? onePerDocument(rerankResults).slice(0, topN)
+          : rerankResults;
+        ranked.forEach((item) => {
           if (this.distanceToSimilarity(item._distance) < similarityThreshold)
             return;
           const { vector: _, ...rest } = item;
@@ -433,6 +441,7 @@ class LanceDb extends VectorDatabase {
     topN = 4,
     filterIdentifiers = [],
     rerank = false,
+    distinctDocuments = false,
   }) {
     if (!namespace || !input || !LLMConnector)
       throw new Error("Invalid request to performSimilaritySearch.");
@@ -456,6 +465,7 @@ class LanceDb extends VectorDatabase {
           similarityThreshold,
           topN,
           filterIdentifiers,
+          distinctDocuments,
         })
       : await this.similarityResponse({
           client,

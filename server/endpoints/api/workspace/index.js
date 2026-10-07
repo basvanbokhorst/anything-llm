@@ -1009,6 +1009,9 @@ function apiWorkspaceEndpoints(app) {
           similarityThreshold: parseSimilarityThreshold(),
           topN: parseTopN(),
           rerank: workspace?.vectorSearchMode === "rerank",
+          // Greenberry: topN counts documents, not chunks (VECTOR_SEARCH_DISTINCT_DOCUMENTS=on).
+          distinctDocuments:
+            process.env.VECTOR_SEARCH_DISTINCT_DOCUMENTS === "on",
         });
 
         // Greenberry: record the question and what came back (never throws).
